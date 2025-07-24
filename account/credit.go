@@ -2,8 +2,6 @@ package account
 
 import (
 	"errors"
-	"math/rand"
-	"time"
 )
 
 type CreditAccount struct{
@@ -12,16 +10,40 @@ type CreditAccount struct{
 	creditLimit float64
 }
 
+var lastID int
+func generateID() int {
+    lastID++
+    return lastID
+}
+
 func NewCreditAccount(initialBalance float64, creditLimit float64) (*CreditAccount, error) {
-	rand.Seed(time.Now().UnixNano())
 	if initialBalance < -creditLimit {
         return nil, errors.New("начальный баланс превышает кредитный лимит")
     }
-	id := rand.Intn(1000000) + 1
+	id := generateID()
 
 	return &CreditAccount{
 		id: id,
 		balance: initialBalance,
 		creditLimit: creditLimit,
 	}, nil
+}
+
+func (c *CreditAccount) Deposit(amount float64) error {
+	if (amount <= 0){
+		return errors.New("сумма должна быть положительной")
+	}
+	c.balance += amount
+	return nil
+}
+
+func (c *CreditAccount) Withdraw(amount float64) error{
+	if (amount<=0) {
+		return errors.New("сумма должна быть положительной")
+	}
+	if(c.balance - amount < -c.creditLimit){
+		return errors.New("сумма должна быть положительной")
+	}
+	c.balance -= amount
+	return nil
 }
